@@ -224,7 +224,7 @@ public class AcronymProvider extends ContentProvider {
         	Log.d(TAG, "Getting all rows...");
             retCursor = mOpenHelper.getReadableDatabase().query(
             		AcronymEntry.TABLE_NAME, projection, 
-            		null, NO_ARGS, 
+            		selection, selectionArgs, 
             		null, null, sortOrder);
             break;
         case ACRONYM: 

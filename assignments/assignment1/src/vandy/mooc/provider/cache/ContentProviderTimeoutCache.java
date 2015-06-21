@@ -225,10 +225,11 @@ public class ContentProviderTimeoutCache
             // location the cvArray.
         	AcronymExpansion expansion = longForms.get(i);
         	ContentValues cv = new ContentValues();
+        	cv.put(AcronymEntry.COLUMN_ACRONYM, acronym);
         	cv.put(AcronymEntry.COLUMN_LONG_FORM, expansion.getLf());
         	cv.put(AcronymEntry.COLUMN_FREQUENCY, expansion.getFreq());
         	cv.put(AcronymEntry.COLUMN_SINCE, expansion.getSince());
-        	cv.put(AcronymEntry.COLUMN_LONG_FORM, expirationTime);
+        	cv.put(AcronymEntry.COLUMN_EXPIRATION_TIME, expirationTime);
         	cvArray[i] = cv;
         }
 
