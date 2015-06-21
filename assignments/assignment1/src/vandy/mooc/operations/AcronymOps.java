@@ -90,7 +90,11 @@ public class AcronymOps
             // Create a proxy to access the Acronym web service.  TODO
             // -- you fill in here, replacing "null" with the
             // appropriate initialization of the proxy.
-            mAcronymWebServiceProxy = null;
+            mAcronymWebServiceProxy = new RestAdapter.Builder()
+            	.setEndpoint(AcronymWebServiceProxy.ENDPOINT)
+            	.setLogLevel(LogLevel.FULL)
+            	.build()
+            	.create(AcronymWebServiceProxy.class);
         } else
             // Update the results on the UI.
             updateResultsDisplay();
@@ -155,7 +159,8 @@ public class AcronymOps
                 // two-way Retrofit RPC call.
                 // TODO -- you fill in here, replacying "null" with a
                 // call to the appropriate method on the proxy.
-                AcronymData result = null;
+                AcronymData result = mAcronymWebServiceProxy
+                		.getAcronymResults(acronym).get(0);
                         
                 // Get the "long forms" of the acronym expansion.
                 longForms = result.getLfs();

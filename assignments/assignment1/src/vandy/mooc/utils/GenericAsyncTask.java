@@ -30,7 +30,7 @@ public class GenericAsyncTask<Params,
      * Constructor initializes the field.
      */
     public GenericAsyncTask(Ops ops) {
-	mOps = ops;
+    	mOps = ops;
     }
 
     /**
