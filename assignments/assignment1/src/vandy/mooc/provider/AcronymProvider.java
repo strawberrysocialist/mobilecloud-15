@@ -8,6 +8,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Content Provider to access Acronym Database.
@@ -131,6 +132,7 @@ public class AcronymProvider extends ContentProvider {
             // TODO - replace 0 with code that inserts a row in Table
             // and returns the row id.
             long id = db.insert(AcronymEntry.TABLE_NAME, null, values);
+        	Log.d(TAG, "SQL Insert result is... " + (id > 0) + ".");
 
             // Check if a new row is inserted or not.
             if (id > 0)
@@ -179,6 +181,7 @@ public class AcronymProvider extends ContentProvider {
             try {
                 // TODO -- write the code that inserts all the
                 // contentValues into the SQLite database.
+            	Log.d(TAG, "Running multiple Insert commands...");
             	for (ContentValues values : contentValues) {
                 	insert(uri, values);
             	}
@@ -218,6 +221,7 @@ public class AcronymProvider extends ContentProvider {
             // TODO -- replace "null" by writing code to query the
             // entire SQLite database based on the parameters passed
             // into the method.
+        	Log.d(TAG, "Getting all rows...");
             retCursor = mOpenHelper.getReadableDatabase().query(
             		AcronymEntry.TABLE_NAME, projection, 
             		null, NO_ARGS, 
@@ -235,6 +239,8 @@ public class AcronymProvider extends ContentProvider {
             // TODO -- replace "null" by writing code to query the
             // SQLite database for the particular rowId based on (a
             // subset of) the parameters passed into the method.
+        	Log.d(TAG, "Getting row "
+        			+ String.valueOf(ContentUris.parseId(uri)));
             retCursor = mOpenHelper.getReadableDatabase().query(
             		AcronymEntry.TABLE_NAME, projection, 
             		rowId, NO_ARGS, 
@@ -292,6 +298,7 @@ public class AcronymProvider extends ContentProvider {
             // TODO -- replace "0" with a call to the SQLite database
             // to update the row(s) in the database based on the
             // parameters passed into this method.
+        	Log.d(TAG, "Updating rows...");
             rowsUpdated = db.update(AcronymEntry.TABLE_NAME,
         			values, selection, selectionArgs);
             break;
@@ -337,6 +344,7 @@ public class AcronymProvider extends ContentProvider {
             // TODO -- replace "0" with code that deletes the row(s)
             // in the SQLite database table based on the parameters
             // passed into the method.
+        	Log.d(TAG, "Deleting rows...");
             rowsDeleted = db.delete(AcronymEntry.TABLE_NAME,
             		selection, selectionArgs);
             break;
