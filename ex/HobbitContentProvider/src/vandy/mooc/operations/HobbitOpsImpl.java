@@ -5,13 +5,14 @@ import java.lang.ref.WeakReference;
 import vandy.mooc.R;
 import vandy.mooc.activities.HobbitActivity;
 import vandy.mooc.provider.CharacterContract;
-import vandy.mooc.provider.HobbitContentProviderImpl;
+import vandy.mooc.provider.HobbitProviderImpl;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 /**
  * Class that implements the operations for inserting, querying,
@@ -149,9 +150,9 @@ public abstract class HobbitOpsImpl {
         throws RemoteException;
 
     /**
-     * Update the @a name and @a race of a Hobbit character at a
-     * designated @a uri from the HobbitContentProvider.  Plays the
-     * role of a "template method" in the Template Method pattern.
+     * Update the @a name of a Hobbit character at a designated @a uri
+     * from the HobbitContentProvider.  Plays the role of a "template
+     * method" in the Template Method pattern.
      */
     public int updateByUri(Uri uri,
                            String name,
@@ -163,8 +164,8 @@ public abstract class HobbitOpsImpl {
                 race);
         return update(uri,
                       cvs,
-                      CharacterContract.CharacterEntry.COLUMN_NAME,
-                      new String[] { name });
+                      null,
+                      null);
     }
 
     /**
@@ -175,8 +176,6 @@ public abstract class HobbitOpsImpl {
     public int updateByName(String name,
                             String race) throws RemoteException {
         final ContentValues cvs = new ContentValues();
-        cvs.put(CharacterContract.CharacterEntry.COLUMN_NAME,
-                name);
         cvs.put(CharacterContract.CharacterEntry.COLUMN_RACE,
                 race);
         return update(CharacterContract.CharacterEntry.CONTENT_URI,
@@ -251,9 +250,14 @@ public abstract class HobbitOpsImpl {
                         selection,
                         selectionArgs,
                         null);
-        // Display the results of the query.
-        mActivity.get().displayCursor
-            (makeCursorAdapter());
+        if (mCursor.getCount() == 0)
+            Toast.makeText(mActivity.get(), 
+                           "no items to display",
+                           Toast.LENGTH_SHORT).show();
+        else
+            // Display the results of the query.
+            mActivity.get().displayCursor
+                (makeCursorAdapter());
     }
 
     /**
@@ -264,8 +268,8 @@ public abstract class HobbitOpsImpl {
             (mActivity.get(),
              R.layout.list_layout,
              mCursor,
-             HobbitContentProviderImpl.sCOLUMNS,
-             HobbitContentProviderImpl.sCOLUMNS_TYPES,
+             HobbitProviderImpl.sCOLUMNS,
+             HobbitProviderImpl.sCOLUMNS_TYPES,
              1);
     }
 }

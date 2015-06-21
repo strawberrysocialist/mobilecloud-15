@@ -6,18 +6,17 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.net.Uri;
 
 /**
  * Content Provider used to store information about Hobbit characters.
  */
-public abstract class HobbitContentProviderImpl {
+public abstract class HobbitProviderImpl {
     /**
      * Debugging tag used by the Android logger.
      */
     protected final static String TAG =
-        HobbitContentProvider.class.getSimpleName();
+        HobbitProvider.class.getSimpleName();
 
     protected Context mContext;
 
@@ -39,7 +38,7 @@ public abstract class HobbitContentProviderImpl {
     protected static final UriMatcher sUriMatcher =
         buildUriMatcher();
 
-    public HobbitContentProviderImpl(Context context) {
+    public HobbitProviderImpl(Context context) {
         mContext = context;
     }
 
@@ -73,7 +72,7 @@ public abstract class HobbitContentProviderImpl {
      * Columns in the "table".
      */
     public static final String[] sCOLUMNS =
-        new String[] { "_ID",
+        new String[] { CharacterEntry._ID,
                        CharacterEntry.COLUMN_NAME,
                        CharacterEntry.COLUMN_RACE };
 
@@ -169,17 +168,16 @@ public abstract class HobbitContentProviderImpl {
                         String selection,
                         String[] selectionArgs,
                         String sortOrder) {
-        MatrixCursor cursor =
-            new MatrixCursor(sCOLUMNS);
+        Cursor cursor;
 
         // Match the id returned by UriMatcher to query appropriate
         // rows.
         switch (sUriMatcher.match(uri)) {
         case CHARACTERS:
-            cursor = (MatrixCursor) queryCharacters(uri, projection, selection, selectionArgs, sortOrder);
+            cursor = queryCharacters(uri, projection, selection, selectionArgs, sortOrder);
             break;
         case CHARACTER:
-            cursor = (MatrixCursor) queryCharacter(uri, projection, selection, selectionArgs, sortOrder);
+            cursor = queryCharacter(uri, projection, selection, selectionArgs, sortOrder);
             break;
         default:
             throw new UnsupportedOperationException("Unknown uri: " 
