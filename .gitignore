@@ -24,6 +24,9 @@ local.properties
 .settings/
 .loadpath
 
+# Eclipse core
+.project
+
 # External tool builders
 .externalToolBuilders/
 
@@ -79,4 +82,4 @@ proguard/
 
 # Temp files for KDE and other Editor's 
 *~
-
+.DS_Store
