@@ -112,5 +112,15 @@ public class VideoFileManager {
 		Path target = getVideoPath(v);
 		Files.copy(videoData, target, StandardCopyOption.REPLACE_EXISTING);
 	}
-	
+
+	/**
+	 * This method deletes the videoData stored for the
+	 * given video from the file system.
+	 * @param v
+	 * @throws IOException
+	 */
+	public void deleteVideoData(Video v) throws IOException {
+		Path target = getVideoPath(v);
+		Files.deleteIfExists(target);
+	}
 }

@@ -17,14 +17,18 @@
  */
 package org.magnum.dataup;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.magnum.dataup.VideoSvcApi;
 import org.magnum.dataup.model.Video;
 import org.magnum.dataup.model.VideoStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -56,57 +60,132 @@ public class AnEmptyController {
 	
 	private AtomicLong idGenerator = new AtomicLong(0L);
 	
-	private List<Video> videos = new ArrayList<Video>();
+	private ConcurrentMap<Long,Video> videos = new ConcurrentHashMap<Long,Video>();
 	
 	/**
-	 * This method extracts the metadata for a new Video and stores it in memory.
+	 * This method grabs the meta data for a new Video from the body, storing it in memory.
 	 * It returns a unique ID to the client for use when uploading the actual video.
 	 * @param v
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.POST)
-	public @ResponseBody long addVideoMetadata(Video v) {
-		// TODO Implement the logic to store the metadata.
-		v.setId(idGenerator.incrementAndGet());
-		synchronized(videos) {
-			videos.add(v);
+	public @ResponseBody long addVideoMetadata(@RequestBody Video v) {
+		// TODONE Implement the logic to store the meta data.
+		assert(v != null);
+		
+		if (v.getId() == 0) {
+			v.setId(new Long(idGenerator.incrementAndGet()));
+			videos.put(v.getId(), v);
+		} else {
+			videos.replace(v.getId(), v);
 		}
+		
 		return v.getId();
 	}
 
 	/**
-	 * This method extracts the metadata for a new Video and stores it in memory.
-	 * It returns a unique ID to the client for use when uploading the actual video.
-	 * @param v
+	 * This method grabs the encoded video from the multi part body, writing it to disk.
+	 * It returns the VideoStatus to indicate success or 400 for failure.
+	 * @param id
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
 	public @ResponseStatus VideoStatus addVideo(@PathVariable long id) {
 		// TODO Implement the logic to store the video data.
+		assert(videos != null);
+		
+		Long longId = new Long(id);
+		if (videos.containsKey(longId)) {
+			Video v = videos.get(longId);
+			assert(v != null);
+			
+			try {
+				VideoFileManager.get().saveVideoData(v, videoData);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		return null;
 	}
 
 	/**
-	 * This method extracts the metadata for a new Video and stores it in memory.
-	 * It returns a unique ID to the client for use when uploading the actual video.
-	 * @param v
+	 * Returns the video specified by the @param id if found.
+	 * @param id
 	 * @return
 	 */
 	@RequestMapping(value=VIDEO_ID_PATH, method=RequestMethod.GET)
-	public Video getVideo(@PathVariable long id) {
+	public @ResponseBody Video getVideo(@PathVariable long id) {
 		// TODO Implement the logic to return the video for the given ID.
+		assert(videos != null);
+		
+		Long longId = new Long(id);
+		if (videos.containsKey(longId)) {
+			Video v = videos.get(longId);
+			
+			try {
+				if (VideoFileManager.get().hasVideoData(v)) {
+					VideoFileManager.get().copyVideoData(v, out);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		return null;
 	}
 
 	/**
-	 * This method extracts the metadata for a new Video and stores it in memory.
-	 * It returns a unique ID to the client for use when uploading the actual video.
+	 * This method returns a collection of all video 
+	 * meta data stored by the service.
 	 * @param v
 	 * @return
 	 */
 	@RequestMapping(value=VIDEOS_PATH, method=RequestMethod.GET)
-	public @ResponseBody List<Video> getVideos() {
-		// TODO Implement the logic to return the list of all videos.
-		return videos;
+	public @ResponseBody Collection<Video> getVideos() {
+		// TODONE Implement the logic to return the list of all videos.
+		assert(videos != null);
+		
+		return videos.values();
+	}
+	
+	/**
+	 * This method deletes the video data and the video meta data
+	 * for the given @param id if found.
+	 * @param id
+	 */
+	@RequestMapping(value=VIDEO_ID_PATH, method=RequestMethod.DELETE)
+	public void deleteVideo(@PathVariable long id) {
+		assert(videos != null);
+		
+		Long longId = new Long(id);
+		if (videos.containsKey(longId)) {
+			Video v = videos.get(longId);
+			
+			try {
+				VideoFileManager.get().deleteVideoData(v);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			videos.remove(longId);
+		}
+	}
+	
+	/**
+	 * This method deletes all the video data and the video meta data
+	 * stored by the service.
+	 */
+	@RequestMapping(value=VIDEOS_PATH, method=RequestMethod.DELETE)
+	public void deleteVideos() {
+		assert(videos != null);
+		
+		for (Video v : videos.values()) {
+			try {
+				VideoFileManager.get().deleteVideoData(v);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		videos.clear();
 	}
 }
