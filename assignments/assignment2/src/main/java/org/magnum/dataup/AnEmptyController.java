@@ -18,21 +18,27 @@
 package org.magnum.dataup;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.magnum.dataup.VideoSvcApi;
 import org.magnum.dataup.model.Video;
 import org.magnum.dataup.model.VideoStatus;
+import org.magnum.dataup.model.VideoStatus.VideoState;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class AnEmptyController {
@@ -56,8 +62,6 @@ public class AnEmptyController {
 
 	public static final String VIDEO_ID_PATH = VideoSvcApi.VIDEO_SVC_PATH + "/{id}";
 	
-	public static final String VIDEOS_PATH = VideoSvcApi.VIDEO_SVC_PATH + "s";
-	
 	private AtomicLong idGenerator = new AtomicLong(0L);
 	
 	private ConcurrentMap<Long,Video> videos = new ConcurrentHashMap<Long,Video>();
@@ -69,7 +73,7 @@ public class AnEmptyController {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.POST)
-	public @ResponseBody long addVideoMetadata(@RequestBody Video v) {
+	public @ResponseBody Video addVideoMetadata(@RequestBody Video v) {
 		// TODONE Implement the logic to store the meta data.
 		assert(v != null);
 		
@@ -80,7 +84,24 @@ public class AnEmptyController {
 			videos.replace(v.getId(), v);
 		}
 		
-		return v.getId();
+		return v;
+	}
+	
+	/**
+	 * Returns the video meta data specified by the @param id if found.
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value=VIDEO_ID_PATH, method=RequestMethod.GET)
+	public @ResponseBody Video getVideoMetadata(@PathVariable long id) {
+		// TODONE Implement the logic to return the video meta data for the given ID.
+		assert(videos != null);
+		
+		Long longId = new Long(id);
+		if (videos.containsKey(longId)) {
+			return videos.get(longId);
+		}
+		return null;
 	}
 
 	/**
@@ -90,7 +111,9 @@ public class AnEmptyController {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
-	public @ResponseStatus VideoStatus addVideo(@PathVariable long id) {
+	public @ResponseBody VideoStatus addVideo(@PathVariable long id, 
+			@RequestParam("data") MultipartFile file, 
+			HttpServletResponse response) {
 		// TODO Implement the logic to store the video data.
 		assert(videos != null);
 		
@@ -100,10 +123,15 @@ public class AnEmptyController {
 			assert(v != null);
 			
 			try {
-				VideoFileManager.get().saveVideoData(v, videoData);
+				VideoFileManager.get().saveVideoData(v, 
+						file.getInputStream());
 			} catch (IOException e) {
 				e.printStackTrace();
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
+			return new VideoStatus(VideoState.READY);
+		} else {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 		return null;
 	}
@@ -113,8 +141,9 @@ public class AnEmptyController {
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping(value=VIDEO_ID_PATH, method=RequestMethod.GET)
-	public @ResponseBody Video getVideo(@PathVariable long id) {
+	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.GET)
+	public @ResponseBody OutputStream getVideo(@PathVariable long id, 
+			HttpServletResponse response) {
 		// TODO Implement the logic to return the video for the given ID.
 		assert(videos != null);
 		
@@ -123,12 +152,20 @@ public class AnEmptyController {
 			Video v = videos.get(longId);
 			
 			try {
+				OutputStream out = response.getOutputStream();
 				if (VideoFileManager.get().hasVideoData(v)) {
 					VideoFileManager.get().copyVideoData(v, out);
+				} else {
+					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				}
+				
+				return out;
 			} catch (IOException e) {
 				e.printStackTrace();
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
+		} else {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 		return null;
 	}
@@ -139,7 +176,7 @@ public class AnEmptyController {
 	 * @param v
 	 * @return
 	 */
-	@RequestMapping(value=VIDEOS_PATH, method=RequestMethod.GET)
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.GET)
 	public @ResponseBody Collection<Video> getVideos() {
 		// TODONE Implement the logic to return the list of all videos.
 		assert(videos != null);
@@ -174,7 +211,7 @@ public class AnEmptyController {
 	 * This method deletes all the video data and the video meta data
 	 * stored by the service.
 	 */
-	@RequestMapping(value=VIDEOS_PATH, method=RequestMethod.DELETE)
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.DELETE)
 	public void deleteVideos() {
 		assert(videos != null);
 		
