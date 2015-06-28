@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.magnum.dataup.VideoSvcApi;
@@ -37,7 +38,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
@@ -73,18 +75,39 @@ public class AnEmptyController {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.POST)
-	public @ResponseBody Video addVideoMetadata(@RequestBody Video v) {
+	public @ResponseBody Video addVideoMetadata(@RequestBody Video v, 
+			HttpServletResponse response) {
 		// TODONE Implement the logic to store the meta data.
 		assert(v != null);
 		
-		if (v.getId() == 0) {
-			v.setId(new Long(idGenerator.incrementAndGet()));
-			videos.put(v.getId(), v);
-		} else {
-			videos.replace(v.getId(), v);
+		Long id = initializeVideo(v);
+		if (id == null) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 		
-		return v;
+		return videos.get(id);
+	}
+	
+	/**
+	 * This method grabs the meta data for the video with the id for
+	 * the @param v, updating its representation in memory if found.
+	 * It returns the updated video.
+	 * @param v
+	 * @return
+	 */
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.PUT)
+	public @ResponseBody Video updateVideoMetadata(@RequestBody Video v, 
+			HttpServletResponse response) {
+		// TODONE Implement the logic to store the meta data.
+		assert(v != null);
+		
+		Long id = new Long(v.getId());
+		if (id != 0 && videos.containsKey(id)) {
+			videos.replace(id, v);
+		} else{
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+		return videos.get(id);
 	}
 	
 	/**
@@ -112,9 +135,9 @@ public class AnEmptyController {
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
 	public @ResponseBody VideoStatus addVideo(@PathVariable long id, 
-			@RequestParam("data") MultipartFile file, 
+			@RequestParam("data") MultipartFile videoFile, 
 			HttpServletResponse response) {
-		// TODO Implement the logic to store the video data.
+		// TODONE Implement the logic to store the video data.
 		assert(videos != null);
 		
 		Long longId = new Long(id);
@@ -124,16 +147,17 @@ public class AnEmptyController {
 			
 			try {
 				VideoFileManager.get().saveVideoData(v, 
-						file.getInputStream());
+						videoFile.getInputStream());
 			} catch (IOException e) {
 				e.printStackTrace();
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
-			return new VideoStatus(VideoState.READY);
+			//return new VideoStatus(VideoState.READY);
 		} else {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
-		return null;
+		//return null;
+		return new VideoStatus(VideoState.READY);
 	}
 
 	/**
@@ -142,9 +166,11 @@ public class AnEmptyController {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.GET)
-	public @ResponseBody OutputStream getVideo(@PathVariable long id, 
+	public void getVideo(@PathVariable long id, 
 			HttpServletResponse response) {
-		// TODO Implement the logic to return the video for the given ID.
+		//public @ResponseBody OutputStream getVideo(@PathVariable long id, 
+		//		HttpServletResponse response) {
+		// TODONE Implement the logic to return the video for the given ID.
 		assert(videos != null);
 		
 		Long longId = new Long(id);
@@ -158,8 +184,8 @@ public class AnEmptyController {
 				} else {
 					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				}
-				
-				return out;
+				out.close();
+				//return out;
 			} catch (IOException e) {
 				e.printStackTrace();
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -167,7 +193,7 @@ public class AnEmptyController {
 		} else {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
-		return null;
+		//return null;
 	}
 
 	/**
@@ -224,5 +250,37 @@ public class AnEmptyController {
 		}
 		
 		videos.clear();
+	}
+	
+	/* This method assigns a new ID and a url to a new video.
+	 * It returns the ID of the new video or Null if the
+	 * video was already in the collection. 
+	 */
+	private Long initializeVideo(Video v) {
+		Long id = new Long(v.getId());
+		if (id == 0 && !videos.containsKey(id)) {
+			id = new Long(idGenerator.incrementAndGet());
+			v.setId(id.longValue());
+			v.setDataUrl(getUrlBaseForLocalServer() 
+					+ VideoSvcApi.VIDEO_DATA_PATH.replaceFirst(
+							"\\{id\\}", id.toString()));
+			videos.put(id, v);
+		} else {
+			return null;
+		}
+		return id;
+	}
+
+	/* This method returns the url authority for the current request
+	 * prepended by the http scheme.
+	 */
+ 	private String getUrlBaseForLocalServer() {
+	   HttpServletRequest request = ((ServletRequestAttributes) 
+			   RequestContextHolder.getRequestAttributes()).getRequest();
+	   String base = "http://" + request.getServerName() + ( 
+	      (request.getServerPort() != 80) 
+	    		  ? ":" + request.getServerPort() 
+				  : "");
+	   return base;
 	}
 }
