@@ -2,11 +2,11 @@ package vandy.mooc.operations.ContactsOpsImplLoaderManager;
 
 import java.util.Iterator;
 
+import vandy.mooc.common.Command;
 import vandy.mooc.common.GenericAsyncTask;
 import vandy.mooc.common.GenericAsyncTaskOps;
 import vandy.mooc.common.Utils;
 import vandy.mooc.operations.ContactsOpsImpl;
-import vandy.mooc.utils.ContactsCommand;
 import android.content.ContentResolver;
 import android.provider.ContactsContract;
 
@@ -14,8 +14,8 @@ import android.provider.ContactsContract;
  * Delete all designated contacts in a background thread.
  */
 public class DeleteContactsCommand
-       extends GenericAsyncTaskOps<Iterator<String>, Void, Integer>
-       implements ContactsCommand {
+       implements GenericAsyncTaskOps<Iterator<String>, Void, Integer>,
+                  Command<Iterator<String>> {
     /**
      * Store a reference to the ContactsOpsImpl object.
      */
