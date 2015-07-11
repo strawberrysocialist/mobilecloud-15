@@ -22,11 +22,16 @@ import java.util.Collection;
 import vandy.mooc.video.server.model.Video;
 import vandy.mooc.video.server.model.VideoStatus;
 
+//import retrofit.client.*;
+//import retrofit.http.*;
+//import retrofit.mime.*;
 import retrofit.client.Response;
 import retrofit.http.Body;
+import retrofit.http.DELETE;
 import retrofit.http.GET;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
+import retrofit.http.PUT;
 import retrofit.http.Part;
 import retrofit.http.Path;
 import retrofit.http.Streaming;
@@ -109,7 +114,9 @@ public interface VideoSvcApi {
 
 	public static final String VIDEO_SVC_PATH = "/video";
 	
-	public static final String VIDEO_DATA_PATH = VIDEO_SVC_PATH + "/{id}/data";
+	public static final String VIDEO_INFO_PATH = VIDEO_SVC_PATH + "/{id}";
+
+	public static final String VIDEO_DATA_PATH = VIDEO_INFO_PATH + "/data";
 
 	/**
 	 * This endpoint in the API returns a list of the videos that have
@@ -132,6 +139,16 @@ public interface VideoSvcApi {
 	 */
 	@POST(VIDEO_SVC_PATH)
 	public Video addVideo(@Body Video v);
+	
+	/**
+	 * This endpoint allows clients to update Video objects that already exist
+	 * by sending PUT requests that have an application/json body containing 
+	 * the Video object information. 
+	 * 
+	 * @return
+	 */
+	@PUT(VIDEO_INFO_PATH)
+	public Video updateVideo(@Path(ID_PARAMETER) long id, @Body Video v);
 	
 	/**
 	 * This endpoint allows clients to set the mpeg video data for previously
@@ -166,6 +183,24 @@ public interface VideoSvcApi {
 	 * @return
 	 */
 	@Streaming
-    @GET(VIDEO_DATA_PATH)
-    Response getData(@Path(ID_PARAMETER) long id);
+	@GET(VIDEO_DATA_PATH)
+	Response getData(@Path(ID_PARAMETER) long id);
+	
+	/**
+	 * This endpoint should delete the video data identified by the @param id
+	 * or a 404 if no video data has been set yet. The URL scheme
+	 * is the same as in the method above and assumes that the client knows the ID
+	 * of the Video object that it would like to retrieve video data for.
+	 * 
+	 * @param id
+	 */
+	@DELETE(VIDEO_INFO_PATH + "/*")
+	public void deleteVideo(@Path(ID_PARAMETER) long id);
+	
+	/**
+	 * This endpoint should delete all videos stored.
+	 * 
+	 */
+	@DELETE(VIDEO_SVC_PATH)
+	public void deleteVideos();
 }

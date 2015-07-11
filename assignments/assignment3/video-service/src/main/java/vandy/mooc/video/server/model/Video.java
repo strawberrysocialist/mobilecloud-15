@@ -35,6 +35,8 @@ public class Video {
 		public VideoBuilder withDuration(long duration);
 		public VideoBuilder withSubject(String subject);
 		public VideoBuilder withContentType(String contentType);
+		public VideoBuilder withTotalNumberOfStars(double totalSumOfStars);
+		public VideoBuilder withTotalSumOfStars(double totalNumberOfStars);
 	}
 
 	private long id;
@@ -43,6 +45,8 @@ public class Video {
 	private String location;
 	private String subject;
 	private String contentType;
+	private double totalSumOfStars = 0;
+	private double totalNumberOfStars = 0;
 
 	@JsonIgnore
 	private String dataUrl;
@@ -103,6 +107,35 @@ public class Video {
 
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
+	}
+
+	public double getTotalSumOfStars() {
+		return totalSumOfStars;
+	}
+
+	public void setTotalSumOfStars(double totalSumOfStars) {
+		this.totalSumOfStars = totalSumOfStars;
+	}
+
+	public double getTotalNumberOfStars() {
+		return totalNumberOfStars;
+	}
+
+	public void setTotalNumberOfStars(double totalNumberOfStars) {
+		this.totalNumberOfStars = totalNumberOfStars;
+	}
+
+	public void addRating(int numberOfStars) {
+		setTotalSumOfStars(getTotalSumOfStars() + numberOfStars);
+		setTotalNumberOfStars(getTotalNumberOfStars() + 1);
+	}
+
+	public float getAverageRating() {
+		if (getTotalNumberOfStars() > 0) {
+			return (float) (getTotalSumOfStars() / getTotalNumberOfStars());
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
