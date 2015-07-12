@@ -114,7 +114,7 @@ public interface VideoSvcApi {
 
 	public static final String VIDEO_SVC_PATH = "/video";
 	
-	public static final String VIDEO_INFO_PATH = VIDEO_SVC_PATH + "/{id}";
+	public static final String VIDEO_INFO_PATH = VIDEO_SVC_PATH + "/{" + ID_PARAMETER + "}";
 
 	public static final String VIDEO_DATA_PATH = VIDEO_INFO_PATH + "/data";
 
@@ -194,13 +194,14 @@ public interface VideoSvcApi {
 	 * 
 	 * @param id
 	 */
-	@DELETE(VIDEO_INFO_PATH + "/*")
-	public void deleteVideo(@Path(ID_PARAMETER) long id);
+	//@DELETE(VIDEO_INFO_PATH)
+	@DELETE(VIDEO_DATA_PATH)
+	public Response deleteVideo(@Path(ID_PARAMETER) long id);
 	
 	/**
 	 * This endpoint should delete all videos stored.
 	 * 
 	 */
 	@DELETE(VIDEO_SVC_PATH)
-	public void deleteVideos();
+	public Response deleteVideos();
 }

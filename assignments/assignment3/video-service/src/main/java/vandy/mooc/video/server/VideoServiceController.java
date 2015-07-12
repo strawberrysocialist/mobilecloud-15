@@ -3,9 +3,6 @@ package vandy.mooc.video.server;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,8 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import vandy.mooc.video.server.VideoFileManager;
 import vandy.mooc.video.server.VideoSvcApi;
 import vandy.mooc.video.server.model.Video;
+import vandy.mooc.video.server.model.VideoRepository;
 import vandy.mooc.video.server.model.VideoStatus;
 import vandy.mooc.video.server.model.VideoStatus.VideoState;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,13 +26,18 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.common.collect.Lists;
+
+@Controller
 public class VideoServiceController {
 
-	public static final String VIDEO_ID_PATH = VideoSvcApi.VIDEO_SVC_PATH + "/{id}";
+	//public static final String VIDEO_ID_PATH = VideoSvcApi.VIDEO_SVC_PATH + "/{id}";
 	
-	private AtomicLong idGenerator = new AtomicLong(0L);
+	@Autowired
+	private VideoRepository mVideoRepository;
 	
-	private ConcurrentMap<Long,Video> videos = new ConcurrentHashMap<Long,Video>();
+	@Autowired
+	private VideoFileManager mVideoDataRepository;
 	
 	/**
 	 * This method grabs the meta data for a new Video from the body, storing it in memory.
@@ -45,12 +51,19 @@ public class VideoServiceController {
 		// TODONE Implement the logic to store the meta data.
 		assert(v != null);
 		
-		Long id = initializeVideo(v);
-		if (id == null) {
+		v = mVideoRepository.save(v);
+		
+		if (v == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 		
-		return videos.get(id);
+		// TODO Fix filename & path
+		v.setDataUrl(getUrlBaseForLocalServer() 
+				+ VideoSvcApi.VIDEO_DATA_PATH.replace(
+						"{" + VideoSvcApi.ID_PARAMETER + "}",
+						"" + v.getId()));
+		
+		return v;
 	}
 	
 	/**
@@ -66,13 +79,13 @@ public class VideoServiceController {
 		// TODONE Implement the logic to store the meta data.
 		assert(v != null);
 		
-		Long id = new Long(v.getId());
-		if (id != 0 && videos.containsKey(id)) {
-			videos.replace(id, v);
-		} else{
+		v = mVideoRepository.save(v);
+		
+		if (v == null) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
-		return videos.get(id);
+		
+		return v;
 	}
 	
 	/**
@@ -80,16 +93,17 @@ public class VideoServiceController {
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping(value=VIDEO_ID_PATH, method=RequestMethod.GET)
-	public @ResponseBody Video getVideoMetadata(@PathVariable long id) {
+	@RequestMapping(value=VideoSvcApi.VIDEO_INFO_PATH, method=RequestMethod.GET)
+	public @ResponseBody Video getVideoMetadata(@PathVariable long id, 
+			HttpServletResponse response) {
 		// TODONE Implement the logic to return the video meta data for the given ID.
-		assert(videos != null);
+		Video v = mVideoRepository.findOne(id);
 		
-		Long longId = new Long(id);
-		if (videos.containsKey(longId)) {
-			return videos.get(longId);
+		if (v == null) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
-		return null;
+		
+		return v;
 	}
 
 	/**
@@ -97,31 +111,27 @@ public class VideoServiceController {
 	 * It returns the VideoStatus to indicate success or 400 for failure.
 	 * @param id
 	 * @return
+	 * @throws IOException 
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
 	public @ResponseBody VideoStatus addVideo(@PathVariable long id, 
 			@RequestParam("data") MultipartFile videoFile, 
-			HttpServletResponse response) {
+			HttpServletResponse response) throws IOException {
 		// TODONE Implement the logic to store the video data.
-		assert(videos != null);
-		
-		Long longId = new Long(id);
-		if (videos.containsKey(longId)) {
-			Video v = videos.get(longId);
-			assert(v != null);
-			
+		Video v = mVideoRepository.findOne(id);
+		if (v != null) {
 			try {
-				VideoFileManager.get().saveVideoData(v, 
+				mVideoDataRepository.saveVideoData(v, 
 						videoFile.getInputStream());
 			} catch (IOException e) {
 				e.printStackTrace();
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						"Unable to write file");
 			}
-			//return new VideoStatus(VideoState.READY);
 		} else {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.sendError(HttpServletResponse.SC_NOT_FOUND,
+					"Video not found");
 		}
-		//return null;
 		return new VideoStatus(VideoState.READY);
 	}
 
@@ -129,36 +139,33 @@ public class VideoServiceController {
 	 * Returns the video specified by the @param id if found.
 	 * @param id
 	 * @return
+	 * @throws IOException 
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.GET)
 	public void getVideo(@PathVariable long id, 
-			HttpServletResponse response) {
-		//public @ResponseBody OutputStream getVideo(@PathVariable long id, 
-		//		HttpServletResponse response) {
+			HttpServletResponse response) throws IOException {
 		// TODONE Implement the logic to return the video for the given ID.
-		assert(videos != null);
-		
-		Long longId = new Long(id);
-		if (videos.containsKey(longId)) {
-			Video v = videos.get(longId);
-			
+		Video v = mVideoRepository.findOne(id);
+		if (v != null) {
+			OutputStream out = response.getOutputStream();
 			try {
-				OutputStream out = response.getOutputStream();
-				if (VideoFileManager.get().hasVideoData(v)) {
-					VideoFileManager.get().copyVideoData(v, out);
+				if (mVideoDataRepository.hasVideoData(v)) {
+					mVideoDataRepository.copyVideoData(v, out);
 				} else {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+					response.sendError(HttpServletResponse.SC_NOT_FOUND,
+							"Video not found");
 				}
-				out.close();
-				//return out;
 			} catch (IOException e) {
 				e.printStackTrace();
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						"Unable to read file");
+			} finally {
+				out.close();
 			}
 		} else {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.sendError(HttpServletResponse.SC_NOT_FOUND,
+					"Video not found");
 		}
-		//return null;
 	}
 
 	/**
@@ -170,9 +177,7 @@ public class VideoServiceController {
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.GET)
 	public @ResponseBody Collection<Video> getVideos() {
 		// TODONE Implement the logic to return the list of all videos.
-		assert(videos != null);
-		
-		return videos.values();
+		return Lists.newArrayList(mVideoRepository.findAll());
 	}
 	
 	/**
@@ -180,21 +185,15 @@ public class VideoServiceController {
 	 * for the given @param id if found.
 	 * @param id
 	 */
-	@RequestMapping(value=VIDEO_ID_PATH, method=RequestMethod.DELETE)
+	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.DELETE)
+	//@RequestMapping(value=VideoSvcApi.VIDEO_INFO_PATH, method=RequestMethod.DELETE)
 	public void deleteVideo(@PathVariable long id) {
-		assert(videos != null);
-		
-		Long longId = new Long(id);
-		if (videos.containsKey(longId)) {
-			Video v = videos.get(longId);
-			
-			try {
-				VideoFileManager.get().deleteVideoData(v);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			videos.remove(longId);
+		try {
+			mVideoDataRepository.deleteVideoData(
+					mVideoRepository.findOne(id));
+			mVideoRepository.deleteOne(id);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -204,38 +203,17 @@ public class VideoServiceController {
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.DELETE)
 	public void deleteVideos() {
-		assert(videos != null);
-		
-		for (Video v : videos.values()) {
+		for (Video v : mVideoRepository.findAll()) {
 			try {
-				VideoFileManager.get().deleteVideoData(v);
+				mVideoDataRepository.deleteVideoData(v);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		
-		videos.clear();
+		mVideoRepository.deleteAll();
 	}
 	
-	/* This method assigns a new ID and a url to a new video.
-	 * It returns the ID of the new video or Null if the
-	 * video was already in the collection. 
-	 */
-	private Long initializeVideo(Video v) {
-		Long id = new Long(v.getId());
-		if (id == 0 && !videos.containsKey(id)) {
-			id = new Long(idGenerator.incrementAndGet());
-			v.setId(id.longValue());
-			v.setDataUrl(getUrlBaseForLocalServer() 
-					+ VideoSvcApi.VIDEO_DATA_PATH.replaceFirst(
-							"\\{id\\}", id.toString()));
-			videos.put(id, v);
-		} else {
-			return null;
-		}
-		return id;
-	}
-
 	/* This method returns the url authority for the current request
 	 * prepended by the http scheme.
 	 */

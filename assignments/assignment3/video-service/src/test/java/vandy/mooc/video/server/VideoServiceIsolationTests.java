@@ -16,12 +16,9 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import retrofit.RestAdapter;
+import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
@@ -29,10 +26,8 @@ import vandy.mooc.video.server.model.Video;
 import vandy.mooc.video.server.model.VideoStatus;
 import vandy.mooc.video.server.model.VideoStatus.VideoState;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = VideoServiceApplication.class)
-@WebAppConfiguration
-public class VideoServiceApplicationTests {
+public class VideoServiceIsolationTests {
+
 	private static final String SERVER = "http://localhost:8080";
 
 	private File testVideoData = new File(
@@ -43,7 +38,9 @@ public class VideoServiceApplicationTests {
 			.withTitle(UUID.randomUUID().toString()).build();
 
 	private VideoSvcApi videoSvc = new RestAdapter.Builder()
-			.setEndpoint(SERVER).build()
+			.setEndpoint(SERVER)
+			.setLogLevel(LogLevel.HEADERS)
+			.build()
 			.create(VideoSvcApi.class);
 
 	@Test
@@ -104,7 +101,8 @@ public class VideoServiceApplicationTests {
 		assertEquals(200, response.getStatus());
 		
 		InputStream videoData = response.getBody().in();
-		byte[] originalFile = IOUtils.toByteArray(new FileInputStream(testVideoData));
+		byte[] originalFile = IOUtils.toByteArray(
+				new FileInputStream(testVideoData));
 		byte[] retrievedFile = IOUtils.toByteArray(videoData);
 		assertTrue(Arrays.equals(originalFile, retrievedFile));
 	}
@@ -125,11 +123,14 @@ public class VideoServiceApplicationTests {
 	@Test
 	public void testAddNonExistantVideosData() throws Exception {
 		long nonExistantId = getInvalidVideoId();
-		try{
-			videoSvc.setVideoData(nonExistantId, new TypedFile(video.getContentType(), testVideoData));
-			fail("The client should receive a 404 error code and throw an exception if an invalid"
+		try {
+			videoSvc.setVideoData(nonExistantId, 
+					new TypedFile(video.getContentType(), 
+							testVideoData));
+			fail("The client should receive a 404 error code "
+					+ "and throw an exception if an invalid"
 					+ " video ID is provided in setVideoData()");
-		}catch(RetrofitError e){
+		} catch (RetrofitError e) {
 			assertEquals(404, e.getResponse().getStatus());
 		}
 	}
