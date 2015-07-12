@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import vandy.mooc.video.server.model.InMemoryVideoRepository;
-import vandy.mooc.video.server.model.VideoRepository;
+import vandy.mooc.video.server.repository.InMemoryVideoRepository;
+import vandy.mooc.video.server.repository.VideoRepository;
 
 // SpringBootApplication is shorthand for the following:
 //@EnableAutoConfiguration

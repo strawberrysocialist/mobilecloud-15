@@ -19,9 +19,9 @@ package vandy.mooc.video.client;
 
 import java.util.Collection;
 
-import vandy.mooc.video.server.model.Video;
-import vandy.mooc.video.server.model.VideoStatus;
 
+import vandy.mooc.video.server.repository.Video;
+import vandy.mooc.video.server.repository.VideoStatus;
 //import retrofit.client.*;
 //import retrofit.http.*;
 //import retrofit.mime.*;

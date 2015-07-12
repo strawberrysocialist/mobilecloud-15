@@ -9,10 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import vandy.mooc.video.server.VideoFileManager;
 import vandy.mooc.video.server.VideoSvcApi;
-import vandy.mooc.video.server.model.Video;
-import vandy.mooc.video.server.model.VideoRepository;
-import vandy.mooc.video.server.model.VideoStatus;
-import vandy.mooc.video.server.model.VideoStatus.VideoState;
+import vandy.mooc.video.server.repository.Video;
+import vandy.mooc.video.server.repository.VideoRepository;
+import vandy.mooc.video.server.repository.VideoStatus;
+import vandy.mooc.video.server.repository.VideoStatus.VideoState;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

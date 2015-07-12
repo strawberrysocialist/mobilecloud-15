@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import vandy.mooc.video.server.model.Video;
+import vandy.mooc.video.server.repository.Video;
 
 /**
  * This class provides a simple implementation to store video binary

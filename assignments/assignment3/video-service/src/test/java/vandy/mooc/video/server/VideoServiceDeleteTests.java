@@ -17,9 +17,9 @@ import retrofit.RestAdapter;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
-import vandy.mooc.video.server.model.Video;
-import vandy.mooc.video.server.model.VideoStatus;
-import vandy.mooc.video.server.model.VideoStatus.VideoState;
+import vandy.mooc.video.server.repository.Video;
+import vandy.mooc.video.server.repository.VideoStatus;
+import vandy.mooc.video.server.repository.VideoStatus.VideoState;
 
 public class VideoServiceDeleteTests {
 

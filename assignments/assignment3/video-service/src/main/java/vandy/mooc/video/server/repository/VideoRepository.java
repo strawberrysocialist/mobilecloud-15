@@ -1,6 +1,6 @@
-package vandy.mooc.video.server.model;
+package vandy.mooc.video.server.repository;
 
-import vandy.mooc.video.server.model.Video;
+import vandy.mooc.video.server.repository.Video;
 
 public interface VideoRepository {
 	public Iterable<Video> findAll();

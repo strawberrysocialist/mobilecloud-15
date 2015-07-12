@@ -1,4 +1,4 @@
-package vandy.mooc.video.server.model;
+package vandy.mooc.video.server.repository;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package vandy.mooc.video.server.model;
+package vandy.mooc.video.server.repository;
 
 import java.util.Objects;
 
