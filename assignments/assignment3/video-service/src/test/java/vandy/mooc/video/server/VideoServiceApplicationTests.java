@@ -96,11 +96,11 @@ public class VideoServiceApplicationTests {
 	@Test
 	public void testAddVideoData() throws Exception {
 		Video received = videoSvc.addVideo(video);
-		VideoStatus status = videoSvc.setVideoData(received.getId(),
+		VideoStatus status = videoSvc.uploadVideo(received.getId(),
 				new TypedFile(received.getContentType(), testVideoData));
 		assertEquals(VideoState.READY, status.getState());
 		
-		Response response = videoSvc.getData(received.getId());
+		Response response = videoSvc.downloadVideo(received.getId());
 		assertEquals(200, response.getStatus());
 		
 		InputStream videoData = response.getBody().in();
@@ -115,7 +115,7 @@ public class VideoServiceApplicationTests {
 		long nonExistantId = getInvalidVideoId();
 		
 		try{
-			Response r = videoSvc.getData(nonExistantId);
+			Response r = videoSvc.downloadVideo(nonExistantId);
 			assertEquals(404, r.getStatus());
 		}catch(RetrofitError e){
 			assertEquals(404, e.getResponse().getStatus());
@@ -126,7 +126,7 @@ public class VideoServiceApplicationTests {
 	public void testAddNonExistantVideosData() throws Exception {
 		long nonExistantId = getInvalidVideoId();
 		try{
-			videoSvc.setVideoData(nonExistantId, new TypedFile(video.getContentType(), testVideoData));
+			videoSvc.uploadVideo(nonExistantId, new TypedFile(video.getContentType(), testVideoData));
 			fail("The client should receive a 404 error code and throw an exception if an invalid"
 					+ " video ID is provided in setVideoData()");
 		}catch(RetrofitError e){

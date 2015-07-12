@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package vandy.mooc.video.server;
+package vandy.mooc.video.client;
 
 import java.util.Collection;
 
@@ -108,16 +108,26 @@ import retrofit.mime.TypedFile;
  */
 public interface VideoSvcApi {
 
-	public static final String DATA_PARAMETER = "data";
-
 	public static final String ID_PARAMETER = "id";
+
+	public static final String TITLE_PARAMETER = "title";
+	
+	public static final String DURATION_PARAMETER = "duration";
+
+	public static final String DATA_PARAMETER = "data";
 
 	public static final String VIDEO_SVC_PATH = "/video";
 	
 	public static final String VIDEO_INFO_PATH = VIDEO_SVC_PATH + "/{" + ID_PARAMETER + "}";
 
-	public static final String VIDEO_DATA_PATH = VIDEO_INFO_PATH + "/data";
+	public static final String VIDEO_DATA_PATH = VIDEO_INFO_PATH + "/" + DATA_PARAMETER;
 
+	public static final String VIDEO_TITLE_SEARCH_PATH = VIDEO_SVC_PATH + "/search/findByName";
+	
+	public static final String VIDEO_DURATION_SEARCH_PATH = VIDEO_SVC_PATH + "/search/findByDurationLessThan";
+
+	public static final String VIDEO_RATING_SEARCH_PATH = VIDEO_SVC_PATH + "/search/findByRating";
+	
 	/**
 	 * This endpoint in the API returns a list of the videos that have
 	 * been added to the server. The Video objects should be returned as
@@ -162,7 +172,7 @@ public interface VideoSvcApi {
 	 */
 	@Multipart
 	@POST(VIDEO_DATA_PATH)
-	public VideoStatus setVideoData(@Path(ID_PARAMETER) long id, @Part(DATA_PARAMETER) TypedFile videoData);
+	public VideoStatus uploadVideo(@Path(ID_PARAMETER) long id, @Part(DATA_PARAMETER) TypedFile videoData);
 	
 	/**
 	 * This endpoint should return the video data that has been associated with
@@ -184,7 +194,7 @@ public interface VideoSvcApi {
 	 */
 	@Streaming
 	@GET(VIDEO_DATA_PATH)
-	Response getData(@Path(ID_PARAMETER) long id);
+	Response downloadVideo(@Path(ID_PARAMETER) long id);
 	
 	/**
 	 * This endpoint should delete the video data identified by the @param id
@@ -194,8 +204,7 @@ public interface VideoSvcApi {
 	 * 
 	 * @param id
 	 */
-	//@DELETE(VIDEO_INFO_PATH)
-	@DELETE(VIDEO_DATA_PATH)
+	@DELETE(VIDEO_INFO_PATH)
 	public Response deleteVideo(@Path(ID_PARAMETER) long id);
 	
 	/**

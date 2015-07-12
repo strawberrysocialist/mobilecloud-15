@@ -54,11 +54,11 @@ public class VideoServiceDeleteTests {
 		
 		System.out.println("testDeleteVideo: Adding video data");
 		// Add video data and confirm
-		VideoStatus status = videoSvc.setVideoData(received.getId(),
+		VideoStatus status = videoSvc.uploadVideo(received.getId(),
 				new TypedFile(received.getContentType(), testVideoData));
 		assertEquals(VideoState.READY, status.getState());
 		
-		Response response = videoSvc.getData(received.getId());
+		Response response = videoSvc.downloadVideo(received.getId());
 		assertEquals(200, response.getStatus());
 		
 		InputStream videoData = response.getBody().in();
@@ -71,7 +71,7 @@ public class VideoServiceDeleteTests {
 		// Delete all video data and confirm
 		videoSvc.deleteVideo(received.getId());
 		assertEquals(videos.size(), initialVideoCount);
-		response = videoSvc.getData(received.getId());
+		response = videoSvc.downloadVideo(received.getId());
 		assertEquals(404, response.getStatus());
 	}
 
@@ -86,7 +86,7 @@ public class VideoServiceDeleteTests {
 		//assertFalse(videos.isEmpty());
 		assertTrue(videos.size() > 0);
 		assertTrue(videos.contains(video));
-		VideoStatus status = videoSvc.setVideoData(received.getId(),
+		VideoStatus status = videoSvc.uploadVideo(received.getId(),
 				new TypedFile(received.getContentType(), testVideoData));
 		assertEquals(VideoState.READY, status.getState());
 		
@@ -95,7 +95,7 @@ public class VideoServiceDeleteTests {
 		assertTrue(updated.getId() > 0);
 		videos = videoSvc.getVideoList();
 		assertTrue(videos.contains(updated));
-		status = videoSvc.setVideoData(updated.getId(),
+		status = videoSvc.uploadVideo(updated.getId(),
 				new TypedFile(updated.getContentType(), testVideoData));
 		assertEquals(VideoState.READY, status.getState());
 		

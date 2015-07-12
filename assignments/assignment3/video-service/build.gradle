@@ -39,8 +39,16 @@ repositories {
 
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-web") {
+        //exclude module: "spring-boot-starter-tomcat"
+    }
+    //providedRuntime("org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}")
+
+	compile("org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}")
+	compile("org.springframework.data:spring-data-rest-webmvc")
 	
+	compile("org.hsqldb:hsqldb")
+
 	compile("org.apache.commons:commons-lang3:3.3.2")
 	compile("commons-io:commons-io:2.4")
 	compile("commons-codec:commons-codec:1.9")
