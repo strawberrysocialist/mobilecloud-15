@@ -1,10 +1,12 @@
 package org.magnum.mobilecloud.integration.test;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -96,7 +98,10 @@ public class VideoSvcIntegrationTest {
 		mockMvc.perform(
 				get(VideoSvcApi.VIDEO_SVC_PATH))
 	            .andExpect(status().isOk())
-	            .andExpect(content().string(containsString(videoJson)))
+	            .andExpect(content().string(containsString(videoJson.replace("\"id\":0", "\"id\":1"))))
+	            //.andExpect(jsonPath("$[0].title", is(video.getName())))
+	            //.andExpect(jsonPath("$[0].url", is(video.getUrl())))
+	            //.andExpect(jsonPath("$[0].duration", is(video.getDuration())))
 	            .andReturn();
 	}
 
