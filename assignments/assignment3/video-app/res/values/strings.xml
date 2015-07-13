@@ -3,7 +3,7 @@
 
     <string name="app_name">VideoUploadClient</string>
     <string name="action_settings">Settings</string>
-    <string name="content_authority">vandy.mooc</string>
+    <string name="content_authority">vandy.mooc.video.android</string>
     <string name="thumbnail_image">Thumbnail Image</string>
     <string name="title_upload_video">Upload Video by </string>
 

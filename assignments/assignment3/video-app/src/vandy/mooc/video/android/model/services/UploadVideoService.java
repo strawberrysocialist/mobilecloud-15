@@ -1,6 +1,6 @@
 package vandy.mooc.video.android.model.services;
 
-import vandy.mooc.model.mediator.VideoDataMediator;
+import vandy.mooc.video.android.model.mediator.VideoDataMediator;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.content.Context;

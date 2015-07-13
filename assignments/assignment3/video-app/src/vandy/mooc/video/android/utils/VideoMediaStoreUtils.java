@@ -2,7 +2,7 @@ package vandy.mooc.video.android.utils;
 
 import java.io.File;
 
-import vandy.mooc.model.mediator.webdata.Video;
+import vandy.mooc.video.android.model.mediator.webdata.Video;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;

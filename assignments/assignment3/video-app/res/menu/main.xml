@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="org.magnum.mobilecloud.videoupclient.MainActivity" >
+    tools:context="vandy.mooc.video.android.VideoListActivity" >
 
     <item
         android:id="@+id/action_settings"
