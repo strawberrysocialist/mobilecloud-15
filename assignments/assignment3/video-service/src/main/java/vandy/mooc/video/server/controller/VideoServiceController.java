@@ -39,8 +39,7 @@ public class VideoServiceController implements VideoSvcApi {
 	
 	@Autowired
 	private VideoFileManager mVideoDataRepository;
-
-
+	
 	/**
 	 * This method returns a collection of all video 
 	 * meta data stored by the service.
@@ -67,7 +66,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return v;
 	}
 	
-
 	/**
 	 * This method grabs the meta data for a new Video from the body, storing it in memory.
 	 * It returns a unique ID to the client for use when uploading the actual video.
@@ -91,7 +89,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return v;
 	}
 	
-
 	/**
 	 * This method grabs the meta data for the video with the id for
 	 * the @param v, updating its representation in memory if found.
@@ -112,7 +109,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return v;
 	}
 	
-
 	/**
 	 * This method returns all videos whose title matches the @param title. 
 	 * The Video objects should be returned as JSON.
@@ -127,7 +123,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return Lists.newArrayList(mVideoRepository.findByTitle(title));
 	}
 	
-
 	/**
 	 * This method returns all videos whose title matches the @param maxDuration. 
 	 * The Video objects should be returned as JSON.
@@ -142,7 +137,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return Lists.newArrayList(mVideoRepository.findByDurationLessThan(maxDuration));
 	}
 	
-
 	/**
 	 * This method returns all videos whose title matches the @param minRating. 
 	 * The Video objects should be returned as JSON.
@@ -157,7 +151,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return Lists.newArrayList(mVideoRepository.findByRatingGreaterThan(minRating));
 	}
 	
-
 	/**
 	 * This method grabs the encoded video from the multi part body, writing it to disk.
 	 * It returns the VideoStatus to indicate success or 400 for failure.
@@ -168,7 +161,7 @@ public class VideoServiceController implements VideoSvcApi {
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
 	@Override
-	public VideoStatus uploadVideo(long id, TypedFile videoData) {
+	public VideoStatus uploadVideo(@PathVariable long id, TypedFile videoData) {
 		// TODONE Implement the logic to store the video data.
 		Video v = mVideoRepository.findOne(id);
 		VideoStatus status = new VideoStatus(VideoState.PROCESSING);
@@ -186,7 +179,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return status;
 	}
 	
-
 	/**
 	 * Returns the video specified by the @param id if found.
 	 * @param id
@@ -195,7 +187,7 @@ public class VideoServiceController implements VideoSvcApi {
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.GET)
 	@Override
-	public Response downloadVideo(long id) {
+	public Response downloadVideo(long id, HttpServletResponse response) throws IOException {
 		// TODONE Implement the logic to return the video for the given ID.
 		Video v = mVideoRepository.findOne(id);
 		if (v != null) {
@@ -203,16 +195,24 @@ public class VideoServiceController implements VideoSvcApi {
 			try {
 				if (mVideoDataRepository.hasVideoData(v)) {
 					mVideoDataRepository.copyVideoData(v, out);
+				} else {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+							"Video " + id + " not found.");
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						"Video " + id + " not available");
 			} finally {
 				out.close();
 			}
+		} else {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+					"Video information for " + id + " not found.");
 		}
+		return null;
 	}
 	
-
 	/**
 	 * This method deletes the video data and the video meta data
 	 * for the given @param id if found.
@@ -234,7 +234,6 @@ public class VideoServiceController implements VideoSvcApi {
 		return null;
 	}
 	
-
 	/**
 	 * This method deletes all the video data and the video meta data
 	 * stored by the service.
@@ -255,7 +254,6 @@ public class VideoServiceController implements VideoSvcApi {
 		// TODO Check to find correct way to handle.
 		return null;
 	}
-
 	
 	/* This method returns the url authority for the current request
 	 * prepended by the http scheme.

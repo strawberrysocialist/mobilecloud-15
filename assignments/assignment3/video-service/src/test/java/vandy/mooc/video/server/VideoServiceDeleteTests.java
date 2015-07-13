@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -17,20 +16,18 @@ import retrofit.RestAdapter;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
+import vandy.mooc.video.TestData;
+import vandy.mooc.video.client.VideoSvcApi;
 import vandy.mooc.video.server.repository.Video;
 import vandy.mooc.video.server.repository.VideoStatus;
 import vandy.mooc.video.server.repository.VideoStatus.VideoState;
 
 public class VideoServiceDeleteTests {
+	private static final String SERVER = TestData.SERVER;
 
-	private static final String SERVER = "http://localhost:8080";
-
-	private File testVideoData = new File(
-			"src/test/resources/test.mp4");
+	private File testVideoData = TestData.getTestVideoFile();
 	
-	private Video video = Video.create().withContentType("video/mp4")
-			.withDuration(123).withSubject(UUID.randomUUID().toString())
-			.withTitle(UUID.randomUUID().toString()).build();
+	private Video video = TestData.getTestVideo();
 
 	private VideoSvcApi videoSvc = new RestAdapter.Builder()
 			.setEndpoint(SERVER)

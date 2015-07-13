@@ -17,7 +17,10 @@
  */
 package vandy.mooc.video.client;
 
+import java.io.IOException;
 import java.util.Collection;
+
+import javax.servlet.http.HttpServletResponse;
 
 import vandy.mooc.video.server.repository.Video;
 import vandy.mooc.video.server.repository.VideoStatus;
@@ -229,7 +232,7 @@ public interface VideoSvcApi {
 	 */
 	@Streaming
 	@GET(VIDEO_DATA_PATH)
-	Response downloadVideo(@Path(ID_PARAMETER) long id);
+	Response downloadVideo(@Path(ID_PARAMETER) long id, HttpServletResponse response) throws IOException;
 	
 	/**
 	 * This endpoint should delete the video data identified by the @param id

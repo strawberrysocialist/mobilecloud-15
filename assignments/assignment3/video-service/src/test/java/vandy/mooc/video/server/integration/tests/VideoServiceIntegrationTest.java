@@ -1,4 +1,4 @@
-package vandy.mooc.video.server;
+package vandy.mooc.video.server.integration.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -12,35 +12,37 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import retrofit.RestAdapter;
-import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
+import vandy.mooc.video.TestData;
+import vandy.mooc.video.client.VideoSvcApi;
+import vandy.mooc.video.server.Application;
 import vandy.mooc.video.server.repository.Video;
 import vandy.mooc.video.server.repository.VideoStatus;
 import vandy.mooc.video.server.repository.VideoStatus.VideoState;
 
-public class VideoServiceIsolationTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = Application.class)
+@WebAppConfiguration
+public class VideoServiceIntegrationTest {
+	private static final String SERVER = TestData.SERVER;
 
-	private static final String SERVER = "http://localhost:8080";
-
-	private File testVideoData = new File(
-			"src/test/resources/test.mp4");
+	private File testVideoData = TestData.getTestVideoFile();
 	
-	private Video video = Video.create().withContentType("video/mp4")
-			.withDuration(123).withSubject(UUID.randomUUID().toString())
-			.withTitle(UUID.randomUUID().toString()).build();
+	private Video video = TestData.getTestVideo();
 
 	private VideoSvcApi videoSvc = new RestAdapter.Builder()
-			.setEndpoint(SERVER)
-			.setLogLevel(LogLevel.HEADERS)
-			.build()
+			.setEndpoint(SERVER).build()
 			.create(VideoSvcApi.class);
 
 	@Test
@@ -94,7 +96,8 @@ public class VideoServiceIsolationTests {
 	public void testAddVideoData() throws Exception {
 		Video received = videoSvc.addVideo(video);
 		VideoStatus status = videoSvc.uploadVideo(received.getId(),
-				new TypedFile(received.getContentType(), testVideoData));
+				new TypedFile(received.getContentType(), 
+						testVideoData));
 		assertEquals(VideoState.READY, status.getState());
 		
 		Response response = videoSvc.downloadVideo(received.getId());
@@ -123,14 +126,14 @@ public class VideoServiceIsolationTests {
 	@Test
 	public void testAddNonExistantVideosData() throws Exception {
 		long nonExistantId = getInvalidVideoId();
-		try {
+		try{
 			videoSvc.uploadVideo(nonExistantId, 
 					new TypedFile(video.getContentType(), 
 							testVideoData));
 			fail("The client should receive a 404 error code "
 					+ "and throw an exception if an invalid"
 					+ " video ID is provided in setVideoData()");
-		} catch (RetrofitError e) {
+		}catch(RetrofitError e){
 			assertEquals(404, e.getResponse().getStatus());
 		}
 	}
