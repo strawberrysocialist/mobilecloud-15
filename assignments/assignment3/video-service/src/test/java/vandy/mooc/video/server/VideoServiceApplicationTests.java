@@ -30,7 +30,7 @@ import vandy.mooc.video.server.repository.VideoStatus;
 import vandy.mooc.video.server.repository.VideoStatus.VideoState;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = VideoServiceApplication.class)
+@SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 public class VideoServiceApplicationTests {
 	private static final String SERVER = "http://localhost:8080";

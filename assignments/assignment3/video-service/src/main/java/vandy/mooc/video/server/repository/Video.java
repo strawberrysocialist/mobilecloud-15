@@ -17,39 +17,56 @@
  */
 package vandy.mooc.video.server.repository;
 
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fluentinterface.ReflectionBuilder;
-import com.fluentinterface.builder.Builder;
+import com.google.common.base.Objects;
 
+/**
+ * A simple object to represent a video and its URL for viewing.
+ * 
+ * @author jules
+ * 
+ */
+@Entity
 public class Video {
 
-	public static VideoBuilder create() {
-		return ReflectionBuilder.implementationFor(VideoBuilder.class).create();
-	}
-
-	public interface VideoBuilder extends Builder<Video> {
-		public VideoBuilder withTitle(String title);
-		public VideoBuilder withDuration(long duration);
-		public VideoBuilder withSubject(String subject);
-		public VideoBuilder withContentType(String contentType);
-		public VideoBuilder withTotalNumberOfStars(double totalSumOfStars);
-		public VideoBuilder withTotalSumOfStars(double totalNumberOfStars);
-	}
-
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
+	
 	private String title;
 	private long duration;
 	private String location;
 	private String subject;
 	private String contentType;
-	private double totalSumOfStars = 0;
-	private double totalNumberOfStars = 0;
+	private AtomicLong totalSumOfRatings = new AtomicLong();
+	private AtomicLong totalCountOfRatings = new AtomicLong();
+	private float rating = 0; 
 
+	// XXX How should the dataUrl be handled, JSON annotations needed?
 	@JsonIgnore
 	private String dataUrl;
+
+	public Video() {
+	}
+
+	public Video(String title, long duration, String location, 
+			String subject, String contentType, String dataUrl) {
+		super();
+		this.title = title;
+		this.duration = duration;
+		this.location = location;
+		this.subject = subject;
+		this.contentType = contentType;
+		this.dataUrl = dataUrl;
+	}
 
 	public long getId() {
 		return id;
@@ -91,11 +108,13 @@ public class Video {
 		this.subject = subject;
 	}
 
+	// XXX How should the dataUrl be handled, JSON annotations needed?
 	@JsonProperty
 	public String getDataUrl() {
 		return dataUrl;
 	}
 
+	// XXX How should the dataUrl be handled, JSON annotations needed?
 	@JsonIgnore
 	public void setDataUrl(String dataUrl) {
 		this.dataUrl = dataUrl;
@@ -109,44 +128,43 @@ public class Video {
 		this.contentType = contentType;
 	}
 
-	public double getTotalSumOfStars() {
-		return totalSumOfStars;
+	public synchronized void addRating(int rating) {
+		long sumOfStars = totalSumOfRatings.addAndGet(rating);
+		long numberOfStars = totalCountOfRatings.incrementAndGet();
+		this.rating = (float) sumOfStars / numberOfStars;
 	}
 
-	public void setTotalSumOfStars(double totalSumOfStars) {
-		this.totalSumOfStars = totalSumOfStars;
+	public float getRating() {
+		return rating;
 	}
 
-	public double getTotalNumberOfStars() {
-		return totalNumberOfStars;
-	}
-
-	public void setTotalNumberOfStars(double totalNumberOfStars) {
-		this.totalNumberOfStars = totalNumberOfStars;
-	}
-
-	public void addRating(int numberOfStars) {
-		setTotalSumOfStars(getTotalSumOfStars() + numberOfStars);
-		setTotalNumberOfStars(getTotalNumberOfStars() + 1);
-	}
-
-	public float getAverageRating() {
-		if (getTotalNumberOfStars() > 0) {
-			return (float) (getTotalSumOfStars() / getTotalNumberOfStars());
-		} else {
-			return 0;
-		}
-	}
-
+	/**
+	 * Two Videos will generate the same hashcode if they have exactly the same
+	 * values for their title, duration, location, subject, and dataUrl.
+	 * 
+	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(getTitle(), getDuration());
+		return Objects.hashCode(title, duration, 
+				location, subject, dataUrl);
 	}
 
+	/**
+	 * Two Videos are considered equal if they have exactly the same values for
+	 * their title, duration, location, subject, and dataUrl.
+	 * 
+	 */
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof Video)
-				&& Objects.equals(getTitle(), ((Video) obj).getTitle())
-				&& getDuration() == ((Video) obj).getDuration();
+		if (obj instanceof Video) {
+			Video other = (Video) obj;
+			return Objects.equal(title, other.title)
+					&& duration == other.duration
+					&& Objects.equal(location, other.location)
+					&& Objects.equal(subject, other.subject)
+					&& Objects.equal(dataUrl, other.dataUrl);
+		} else {
+			return false;
+		}
 	}
 }

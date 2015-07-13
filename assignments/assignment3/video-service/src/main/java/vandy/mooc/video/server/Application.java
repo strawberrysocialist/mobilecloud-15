@@ -25,12 +25,12 @@ import vandy.mooc.video.server.repository.VideoRepository;
 //Tell Spring to turn on WebMVC (e.g., it should enable the DispatcherServlet
 //so that requests can be routed to our Controllers)
 //@EnableWebMvc
-public class VideoServiceApplication {
+public class Application {
 
 	private static final String MAX_REQUEST_SIZE = "50MB";
 
     public static void main(String[] args) {
-        SpringApplication.run(VideoServiceApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
 	@Bean
@@ -46,10 +46,5 @@ public class VideoServiceApplication {
 	@Bean
 	public VideoFileManager videoFileManager() throws IOException {
 		return VideoFileManager.get();
-	}
-
-	@Bean
-	public VideoRepository videoRepository() {
-		return new InMemoryVideoRepository();
 	}
 }
