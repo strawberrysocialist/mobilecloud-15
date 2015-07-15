@@ -37,7 +37,7 @@ public class VideoServiceControllerTest {
 
 	private VideoSvcApi videoSvc = new RestAdapter.Builder()
 			.setEndpoint(SERVER)
-			.setLogLevel(LogLevel.HEADERS)
+			.setLogLevel(LogLevel.FULL)
 			.build()
 			.create(VideoSvcApi.class);
 
@@ -52,7 +52,7 @@ public class VideoServiceControllerTest {
 		assertTrue(received.getId() > 0);
 		assertTrue(received.getDataUrl() != null);
 	}
-	
+	/**
 	@Test
 	public void testUpdateVideoMetadata() throws Exception {
 		Video received = videoSvc.addVideo(video);
@@ -132,7 +132,7 @@ public class VideoServiceControllerTest {
 			assertEquals(404, e.getResponse().getStatus());
 		}
 	}
-
+	*/
 	private long getInvalidVideoId() {
 		Set<Long> ids = new HashSet<Long>();
 		Collection<Video> stored = videoSvc.getVideoList();

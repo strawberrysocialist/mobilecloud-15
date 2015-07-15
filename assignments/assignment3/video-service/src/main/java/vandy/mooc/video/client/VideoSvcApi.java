@@ -232,7 +232,7 @@ public interface VideoSvcApi {
 	 */
 	@Streaming
 	@GET(VIDEO_DATA_PATH)
-	Response downloadVideo(@Path(ID_PARAMETER) long id, HttpServletResponse response) throws IOException;
+	Response downloadVideo(@Path(ID_PARAMETER) long id) throws IOException;
 	
 	/**
 	 * This endpoint should delete the video data identified by the @param id

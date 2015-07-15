@@ -28,7 +28,7 @@ import retrofit.mime.TypedFile;
 import com.google.common.collect.Lists;
 
 @Controller
-public class VideoServiceController implements VideoSvcApi {
+public class VideoServiceController {
 
 	@Autowired
 	private VideoRepository mVideoRepository;
@@ -42,8 +42,7 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.GET)
- 	@Override
-	public Collection<Video> getVideoList() {
+ 	public Collection<Video> getVideoList() {
 		// TODONE Implement the logic to return the list of all videos.
 		return Lists.newArrayList(mVideoRepository.findAll());
 	}
@@ -54,7 +53,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_INFO_PATH, method=RequestMethod.GET)
-	@Override
 	public Video getVideo(long id) {
 		// TODONE Implement the logic to return the video meta data for the given ID.
 		Video v = mVideoRepository.findOne(id);
@@ -69,7 +67,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.POST)
-	@Override
 	public Video addVideo(Video v) {
 		// TODONE Implement the logic to store the meta data.
 		assert(v != null);
@@ -93,8 +90,7 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @param v
 	 * @return
 	 */
-	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.PUT)
-	@Override
+	@RequestMapping(value=VideoSvcApi.VIDEO_INFO_PATH, method=RequestMethod.PUT)
 	public Video updateVideo(long id, Video v) {
 		// TODONE Implement the logic to update modified meta data.
 		assert(v != null);
@@ -112,7 +108,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_TITLE_SEARCH_PATH, method=RequestMethod.GET)
-	@Override
 	public Collection<Video> findByTitle(String title) {
 		// TODONE Implement the logic to return the subset of all videos 
 		// matching the @param title.
@@ -126,7 +121,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DURATION_SEARCH_PATH, method=RequestMethod.GET)
-	@Override
 	public Collection<Video> findByDurationLessThan(long maxDuration) {
 		// TODONE Implement the logic to return the subset of all videos 
 		// matching the @param duration.
@@ -140,7 +134,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_RATING_SEARCH_PATH, method=RequestMethod.GET)
-	@Override
 	public Collection<Video> findByRatingGreaterThan(float minRating) {
 		// TODONE Implement the logic to return the subset of all videos 
 		// matching the @param rating.
@@ -156,7 +149,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @throws IOException 
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
-	@Override
 	public VideoStatus uploadVideo(@PathVariable long id, TypedFile videoData) {
 		// TODONE Implement the logic to store the video data.
 		Video v = mVideoRepository.findOne(id);
@@ -182,7 +174,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @throws IOException 
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.GET)
-	@Override
 	public Response downloadVideo(long id, HttpServletResponse response) throws IOException {
 		// TODONE Implement the logic to return the video for the given ID.
 		Video v = mVideoRepository.findOne(id);
@@ -216,7 +207,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_INFO_PATH, method=RequestMethod.DELETE)
-	@Override
 	public Response deleteVideo(long id) {
 		// TODONE Implement the logic to delete a specific video.
 		try {
@@ -236,7 +226,6 @@ public class VideoServiceController implements VideoSvcApi {
 	 * @return
 	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.DELETE)
-	@Override
 	public Response deleteVideos() {
 		// TODONE Implement the logic to delete all videos.
 		for (Video v : mVideoRepository.findAll()) {
