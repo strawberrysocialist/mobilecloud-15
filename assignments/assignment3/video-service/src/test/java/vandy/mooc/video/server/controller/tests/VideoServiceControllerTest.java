@@ -27,6 +27,7 @@ import vandy.mooc.video.server.repository.Video;
 import vandy.mooc.video.server.repository.VideoStatus;
 import vandy.mooc.video.server.repository.VideoStatus.VideoState;
 
+@SuppressWarnings("unused")
 public class VideoServiceControllerTest {
 
 	private static final String SERVER = TestData.SERVER;

@@ -20,8 +20,6 @@ package vandy.mooc.video.client;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletResponse;
-
 import vandy.mooc.video.server.repository.Video;
 import vandy.mooc.video.server.repository.VideoStatus;
 import retrofit.client.Response;
