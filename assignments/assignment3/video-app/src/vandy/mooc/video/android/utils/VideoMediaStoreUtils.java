@@ -39,6 +39,7 @@ public class VideoMediaStoreUtils {
         // meta data from an input media file.
         final MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         
+        assert(filePath != null);
         //Set the dataSource to the video file path.
         retriever.setDataSource(filePath);
         
@@ -52,14 +53,27 @@ public class VideoMediaStoreUtils {
             (retriever.extractMetadata
              (MediaMetadataRetriever.METADATA_KEY_DURATION));
         
+        //Get the location of the Video.
+        final String location = 
+            retriever.extractMetadata
+             (MediaMetadataRetriever.METADATA_KEY_LOCATION);
+        
+        //Get the subject of the Video.
+        final String subject = 
+            retriever.extractMetadata
+             (MediaMetadataRetriever.METADATA_KEY_GENRE);
+        
         // Get the MimeType of the Video.
         final String contentType =
             retriever.extractMetadata
             (MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
-       
+        //retriever.extractMetadata(keyCode)
+        
         // Create a new Video containing the meta-data.
         return new Video(title,
                          duration,
+                         location,
+                         subject,
                          contentType);
     }
     

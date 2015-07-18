@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.RestAdapter;
+import retrofit.RestAdapter.LogLevel;
 import retrofit.mime.TypedFile;
-
 import vandy.mooc.video.android.model.mediator.webdata.Video;
 import vandy.mooc.video.android.model.mediator.webdata.VideoServiceProxy;
 import vandy.mooc.video.android.model.mediator.webdata.VideoStatus;
@@ -58,6 +58,7 @@ public class VideoDataMediator {
         mVideoServiceProxy = new RestAdapter
             .Builder()
             .setEndpoint(Constants.SERVER_URL)
+            .setLogLevel(LogLevel.FULL)
             .build()
             .create(VideoServiceProxy.class);
     }

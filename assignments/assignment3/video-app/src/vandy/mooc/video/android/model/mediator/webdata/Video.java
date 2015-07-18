@@ -15,8 +15,11 @@ public class Video {
     private long id;
     private String title;
     private long duration;
+	private String location;
+	private String subject;
     private String contentType;
     private String dataUrl;
+	private float rating = 0; 
 	
     /**
      * No-op constructor
@@ -29,9 +32,13 @@ public class Video {
      */
     public Video(String title,
                  long duration,
+ 				 String location,
+				 String subject,
                  String contentType) {
         this.title = title;
         this.duration = duration;
+        this.location = location;
+        this.subject = subject;
         this.contentType = contentType;
     }
 
@@ -41,6 +48,8 @@ public class Video {
     public Video(long id,
                  String title,
                  long duration,
+ 				 String location,
+				 String subject,
                  String contentType,
                  String dataUrl) {
         this.id = id;
@@ -105,20 +114,38 @@ public class Video {
     }
 
     /**
-     * Get the DataUrl of Video
+     * Get the Location of Video.
      * 
-     * @return dataUrl of Video
+     * @return Location of Video.
      */
-    public String getDataUrl() {
-        return dataUrl;
-    }
+	public String getLocation() {
+		return location;
+	}
 
     /**
-     * Set the DataUrl of the Video.
+     * Set the Location of Video.
+     * @param Location of Video.
      */
-    public void setDataUrl(String dataUrl) {
-        this.dataUrl = dataUrl;
-    }
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+    /**
+     * Get the Subject of Video.
+     * 
+     * @return Subject of Video.
+     */
+	public String getSubject() {
+		return subject;
+	}
+
+    /**
+     * Set the Subject of Video.
+     * @param Subject of Video.
+     */
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
 
     /**
      * Get ContentType of Video.
@@ -137,6 +164,39 @@ public class Video {
     }
 	
     /**
+     * Get the Rating for a Video.
+     * 
+     * @return Rating for a Video.
+     */
+	public void setRating(float rating) {
+		this.rating = rating;
+	}
+
+    /**
+     * Set the Rating for a Video.
+     * @param Rating of a Video.
+     */
+	public float getRating() {
+		return rating;
+	}
+
+    /**
+     * Get the DataUrl of Video
+     * 
+     * @return dataUrl of Video
+     */
+    public String getDataUrl() {
+        return dataUrl;
+    }
+
+    /**
+     * Set the DataUrl of the Video.
+     */
+    public void setDataUrl(String dataUrl) {
+        this.dataUrl = dataUrl;
+    }
+
+    /**
      * @return the textual representation of Video object.
      */
     @Override
@@ -146,6 +206,9 @@ public class Video {
             "Title: "+ title + ", "+
             "Duration: "+ duration + ", "+
             "ContentType: "+ contentType + ", "+
+            "Location: "+ location + ", "+
+            "Subject: "+ subject + ", "+
+            "Rating: "+ rating + ", "+
             "Data URL: "+ dataUrl +
             "}";
     }
@@ -156,7 +219,10 @@ public class Video {
     @Override
     public int hashCode() {
         return Objects.hash(getTitle(),
-                            getDuration());
+                            getDuration(),
+                            getLocation(),
+                            getSubject(),
+                            getRating());
     }
 
     /**
@@ -168,6 +234,12 @@ public class Video {
         return (obj instanceof Video)
             && Objects.equals(getTitle(),
                               ((Video) obj).getTitle())
-            && getDuration() == ((Video) obj).getDuration();
+            && getDuration() == ((Video) obj).getDuration()
+            && Objects.equals(getLocation(),
+                    ((Video) obj).getLocation())
+            && Objects.equals(getSubject(),
+                              ((Video) obj).getSubject())
+            && Math.round(getRating()) ==
+            		Math.round(((Video) obj).getRating());
     }
 }

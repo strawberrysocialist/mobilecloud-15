@@ -7,6 +7,7 @@ import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
+import retrofit.http.PUT;
 import retrofit.http.Part;
 import retrofit.http.Path;
 import retrofit.http.Streaming;
@@ -37,11 +38,17 @@ public interface VideoServiceProxy {
     /**
      * The path where we expect the VideoSvc to live.
      */
+    public static final String VIDEO_INFO_PATH = 
+	        VIDEO_SVC_PATH 
+	        + "/{"
+	        + VideoServiceProxy.ID_PARAMETER
+	        + "}";
+
+    /**
+     * The path where we expect the VideoSvc to live.
+     */
     public static final String VIDEO_DATA_PATH = 
-        VIDEO_SVC_PATH 
-        + "/{"
-        + VideoServiceProxy.ID_PARAMETER
-        + "}/data";
+    		VIDEO_INFO_PATH + "/data";
 
     /**
      * Sends a GET request to get the List of Videos from Video
@@ -59,6 +66,16 @@ public interface VideoServiceProxy {
      */
     @POST(VIDEO_SVC_PATH)
     public Video addVideo(@Body Video video);
+	
+    /**
+     * Sends a PUT request to update the Video metadata to the Video 
+     * Web service using a two-way Retrofit RPC call.
+     *
+     * @param video meta-data
+     * @return Updated video meta-data returned from the Video Service.
+     */
+    @PUT(VIDEO_INFO_PATH)
+    public Video updateVideo(@Body Video video);
 	
     /**
      * Sends a POST request to Upload the Video data to the Video Web
