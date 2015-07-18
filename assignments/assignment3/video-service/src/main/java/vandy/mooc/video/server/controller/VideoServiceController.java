@@ -37,15 +37,35 @@ public class VideoServiceController {
 	private VideoFileManager mVideoDataRepository;
 	
 	/**
+	 * Indicates that video metadata exists for a given ID.
+	 */
+	public final static int DATA_VIDEO_METADATA_PRESENT = 2;
+	
+	/**
+	 * Indicates that video metadata does not exist for a given ID.
+	 */
+	public final static int DATA_VIDEO_METADATA_MISSING = -2;
+	
+	/**
+	 * Indicates that video data exists for a given ID.
+	 */
+	public final static int DATA_VIDEO_DATA_PRESENT = 4;
+	
+	/**
+	 * Indicates that video data does not exists for a given ID.
+	 */
+	public final static int DATA_VIDEO_DATA_MISSING = -4;
+	
+	/**
 	 * This method returns a collection of all video 
 	 * meta data stored by the service.
 	 * @return
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.GET)
  	public Collection<Video> getVideoList() {
 		// TODONE Implement the logic to return the list of all videos.
 		return Lists.newArrayList(mVideoRepository.findAll());
 	}
+	 */
 	
 	/**
 	 * Returns the video meta data specified by the @param id if found.
@@ -89,7 +109,6 @@ public class VideoServiceController {
 	 * @param id
 	 * @param v
 	 * @return
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_INFO_PATH, method=RequestMethod.PUT)
 	public Video updateVideo(long id, Video v) {
 		// TODONE Implement the logic to update modified meta data.
@@ -100,45 +119,46 @@ public class VideoServiceController {
 		assert(v != null);
 		return v;
 	}
+	 */
 	
 	/**
 	 * This method returns all videos whose title matches the @param title. 
 	 * The Video objects should be returned as JSON.
 	 * @param title
 	 * @return
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_TITLE_SEARCH_PATH, method=RequestMethod.GET)
 	public Collection<Video> findByTitle(String title) {
 		// TODONE Implement the logic to return the subset of all videos 
 		// matching the @param title.
 		return Lists.newArrayList(mVideoRepository.findByTitle(title));
 	}
+	 */
 	
 	/**
 	 * This method returns all videos whose title matches the @param maxDuration. 
 	 * The Video objects should be returned as JSON.
 	 * @param maxDuration
 	 * @return
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DURATION_SEARCH_PATH, method=RequestMethod.GET)
 	public Collection<Video> findByDurationLessThan(long maxDuration) {
 		// TODONE Implement the logic to return the subset of all videos 
 		// matching the @param duration.
 		return Lists.newArrayList(mVideoRepository.findByDurationLessThan(maxDuration));
 	}
+	 */
 	
 	/**
 	 * This method returns all videos whose title matches the @param minRating. 
 	 * The Video objects should be returned as JSON.
 	 * @param minRating
 	 * @return
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_RATING_SEARCH_PATH, method=RequestMethod.GET)
 	public Collection<Video> findByRatingGreaterThan(float minRating) {
 		// TODONE Implement the logic to return the subset of all videos 
 		// matching the @param rating.
 		return Lists.newArrayList(mVideoRepository.findByRatingGreaterThan(minRating));
 	}
+	 */
 	
 	/**
 	 * This method grabs the encoded video from the multi part body, writing it to disk.
@@ -147,7 +167,6 @@ public class VideoServiceController {
 	 * @param videoData
 	 * @return
 	 * @throws IOException 
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
 	public VideoStatus uploadVideo(@PathVariable long id, TypedFile videoData) {
 		// TODONE Implement the logic to store the video data.
@@ -166,13 +185,13 @@ public class VideoServiceController {
 		
 		return status;
 	}
+	 */
 	
 	/**
 	 * Returns the video specified by the @param id if found.
 	 * @param id
 	 * @return
 	 * @throws IOException 
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.GET)
 	public Response downloadVideo(long id, HttpServletResponse response) throws IOException {
 		// TODONE Implement the logic to return the video for the given ID.
@@ -199,16 +218,19 @@ public class VideoServiceController {
 		}
 		return null;
 	}
+	 */
 	
 	/**
 	 * This method deletes the video data and the video meta data
 	 * for the given @param id if found.
 	 * @param id
 	 * @return
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_INFO_PATH, method=RequestMethod.DELETE)
 	public Response deleteVideo(long id) {
 		// TODONE Implement the logic to delete a specific video.
+		assert(id != 0);
+		
+		if (mVideoRepository.exists(id))
 		try {
 			mVideoDataRepository.deleteVideoData(
 					mVideoRepository.findOne(id));
@@ -219,26 +241,28 @@ public class VideoServiceController {
 		// TODO Check to find correct way to handle.
 		return null;
 	}
+	 */
 	
 	/**
 	 * This method deletes all the video data and the video meta data
 	 * stored by the service.
 	 * @return
-	 */
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.DELETE)
 	public Response deleteVideos() {
 		// TODONE Implement the logic to delete all videos.
 		for (Video v : mVideoRepository.findAll()) {
 			try {
 				mVideoDataRepository.deleteVideoData(v);
-				mVideoRepository.delete(v.getId());
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				mVideoRepository.deleteAll();
 			}
 		}
 		// TODO Check to find correct way to handle.
 		return null;
 	}
+	 */
 	
 	/* This method returns the url authority for the current request
 	 * prepended by the http scheme.
@@ -252,4 +276,34 @@ public class VideoServiceController {
 				  : "");
 	   return base;
 	}
+ 	
+ 	/* This helper method returns a code confirming if the 
+ 	 * underlying data for a given id exists.
+ 	 */
+ 	@SuppressWarnings("unused")
+	private int doesUnderlyingDataExistForId(long id) {
+ 		assert(id != 0);
+		
+		boolean metadataExists = mVideoRepository.exists(id);
+		Video v;
+ 		if (metadataExists) {
+ 			v = mVideoRepository.findOne(id);
+		} else {
+			// Create a dummy Video to check if for orphan video data.
+			v = new Video();
+			v.setId(id);
+		}
+ 		
+ 		boolean dataExists = mVideoDataRepository.hasVideoData(v);
+ 		
+ 		if (metadataExists && dataExists) {
+ 			return DATA_VIDEO_METADATA_PRESENT + DATA_VIDEO_DATA_PRESENT;
+ 		} else if (metadataExists && !dataExists) {
+ 			return DATA_VIDEO_METADATA_PRESENT + DATA_VIDEO_DATA_MISSING;
+ 		} else if (!metadataExists && dataExists) {
+ 			return DATA_VIDEO_METADATA_MISSING + DATA_VIDEO_DATA_PRESENT;
+ 		} else {
+ 			return DATA_VIDEO_METADATA_MISSING + DATA_VIDEO_DATA_MISSING;
+ 		}
+ 	}
 }

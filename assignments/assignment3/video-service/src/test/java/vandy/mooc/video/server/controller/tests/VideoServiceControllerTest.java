@@ -133,7 +133,7 @@ public class VideoServiceControllerTest {
 			assertEquals(404, e.getResponse().getStatus());
 		}
 	}
-	*/
+
 	private long getInvalidVideoId() {
 		Set<Long> ids = new HashSet<Long>();
 		Collection<Video> stored = videoSvc.getVideoList();
@@ -147,4 +147,5 @@ public class VideoServiceControllerTest {
 		}
 		return nonExistantId;
 	}
+	*/
 }

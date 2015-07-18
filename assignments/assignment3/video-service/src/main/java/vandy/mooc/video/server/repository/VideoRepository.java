@@ -18,7 +18,7 @@ import vandy.mooc.video.server.repository.Video;
  */
 @Repository
 public interface VideoRepository extends CrudRepository<Video, Long>{
-
+	/**
 	// Find all videos with a matching title (e.g., Video.name)
 	public Collection<Video> findByTitle(
 			// The @Param annotation tells Spring Data Rest which HTTP request
@@ -39,4 +39,5 @@ public interface VideoRepository extends CrudRepository<Video, Long>{
 			// parameter it should use to fill in the "rating" variable used to
 			// search for Videos
 			@Param(VideoSvcApi.RATING_PARAMETER) float minRating);
+	*/
 }

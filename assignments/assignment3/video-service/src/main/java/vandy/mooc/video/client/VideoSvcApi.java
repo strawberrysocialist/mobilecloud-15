@@ -134,8 +134,8 @@ public interface VideoSvcApi {
 	 * JSON. 
 	 * @return
 	 */
-	@GET(VIDEO_SVC_PATH)
-	public Collection<Video> getVideoList();
+	//@GET(VIDEO_SVC_PATH)
+	//public Collection<Video> getVideoList();
 	
 	/**
 	 * This endpoint allows clients to get a specific Video meta data
@@ -163,8 +163,8 @@ public interface VideoSvcApi {
 	 * @param v
 	 * @return
 	 */
-	@PUT(VIDEO_INFO_PATH)
-	public Video updateVideo(@Path(ID_PARAMETER) long id, @Body Video v);
+	//@PUT(VIDEO_INFO_PATH)
+	//public Video updateVideo(@Path(ID_PARAMETER) long id, @Body Video v);
 	
 	/**
 	 * This endpoint in the API returns a list of the videos that have
@@ -173,8 +173,8 @@ public interface VideoSvcApi {
 	 * @param title
 	 * @return
 	 */
-	@GET(VIDEO_TITLE_SEARCH_PATH)
-	public Collection<Video> findByTitle(@Query(TITLE_PARAMETER) String title);
+	//@GET(VIDEO_TITLE_SEARCH_PATH)
+	//public Collection<Video> findByTitle(@Query(TITLE_PARAMETER) String title);
 	
 	/**
 	 * This endpoint in the API returns a list of the videos that have
@@ -183,8 +183,8 @@ public interface VideoSvcApi {
 	 * @param maxDuration
 	 * @return
 	 */
-	@GET(VIDEO_DURATION_SEARCH_PATH)
-	public Collection<Video> findByDurationLessThan(@Query(DURATION_PARAMETER) long maxDuration);
+	//@GET(VIDEO_DURATION_SEARCH_PATH)
+	//public Collection<Video> findByDurationLessThan(@Query(DURATION_PARAMETER) long maxDuration);
 	
 	/**
 	 * This endpoint in the API returns a list of the videos that have
@@ -193,8 +193,8 @@ public interface VideoSvcApi {
 	 * @param minRating
 	 * @return
 	 */
-	@GET(VIDEO_RATING_SEARCH_PATH)
-	public Collection<Video> findByRatingGreaterThan(@Query(RATING_PARAMETER) float minRating);
+	//@GET(VIDEO_RATING_SEARCH_PATH)
+	//public Collection<Video> findByRatingGreaterThan(@Query(RATING_PARAMETER) float minRating);
 	
 	/**
 	 * This endpoint allows clients to set the mpeg video data for previously
@@ -207,9 +207,9 @@ public interface VideoSvcApi {
 	 * @param videoData
 	 * @return
 	 */
-	@Multipart
-	@POST(VIDEO_DATA_PATH)
-	public VideoStatus uploadVideo(@Path(ID_PARAMETER) long id, @Part(DATA_PARAMETER) TypedFile videoData);
+	//@Multipart
+	//@POST(VIDEO_DATA_PATH)
+	//public VideoStatus uploadVideo(@Path(ID_PARAMETER) long id, @Part(DATA_PARAMETER) TypedFile videoData);
 	
 	/**
 	 * This endpoint should return the video data that has been associated with
@@ -228,9 +228,9 @@ public interface VideoSvcApi {
 	 * @param id
 	 * @return
 	 */
-	@Streaming
-	@GET(VIDEO_DATA_PATH)
-	Response downloadVideo(@Path(ID_PARAMETER) long id) throws IOException;
+	//@Streaming
+	//@GET(VIDEO_DATA_PATH)
+	//Response downloadVideo(@Path(ID_PARAMETER) long id) throws IOException;
 	
 	/**
 	 * This endpoint should delete the video data identified by the @param id
@@ -240,8 +240,8 @@ public interface VideoSvcApi {
 	 * @param id
 	 * @return
 	 */
-	@DELETE(VIDEO_INFO_PATH)
-	public Response deleteVideo(@Path(ID_PARAMETER) long id);
+	//@DELETE(VIDEO_INFO_PATH)
+	//public Response deleteVideo(@Path(ID_PARAMETER) long id);
 	
 	/**
 	 * This endpoint should delete all videos stored.

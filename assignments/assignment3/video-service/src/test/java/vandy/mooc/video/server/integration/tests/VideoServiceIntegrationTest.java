@@ -56,7 +56,7 @@ public class VideoServiceIntegrationTest {
 		assertTrue(received.getId() > 0);
 		assertTrue(received.getDataUrl() != null);
 	}
-	
+	/**
 	@Test
 	public void testUpdateVideoMetadata() throws Exception {
 		Video received = videoSvc.addVideo(video);
@@ -151,4 +151,5 @@ public class VideoServiceIntegrationTest {
 		}
 		return nonExistantId;
 	}
+	*/
 }
