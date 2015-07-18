@@ -247,6 +247,6 @@ public interface VideoSvcApi {
 	 * This endpoint should delete all videos stored.
 	 * @return
 	 */
-	@DELETE(VIDEO_SVC_PATH)
-	public Response deleteVideos();
+	//@DELETE(VIDEO_SVC_PATH)
+	//public Response deleteVideos();
 }
